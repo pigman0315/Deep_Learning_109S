@@ -1,10 +1,6 @@
 # LearningToProtect
 Implementation of [Learning to Protect Communications with Adversarial Neural Cryptography](https://arxiv.org/abs/1610.06918) in PyTorch
 
-**Caution**: Details of implementation differ much from the original paper. I tried to use dense(fc) layers with relu activation, instead of dense+conv1d+sigmoid. See `model/model.py`.
-
-![](./assets/symm.png)
-
 ## Requirements
 
 `pip install -r requirements.txt` (PyTorch, Numpy, TensorboardX)
@@ -19,14 +15,3 @@ Implementation of [Learning to Protect Communications with Adversarial Neural Cr
 
 `tensorboard --logdir logs/`
 
-## Results
-
-Result with `config/default.yaml`, trained on GTX 1080 for 1 hour.
-
-- Accuracy: (Green: Bob, Gray: Eve, Orange: Random guess)
-- Loss: (Green: B, Gray: E, Magenta: AB)
-
-![](./assets/tensorboard.png)
-
-## License
-Apache License v2.0
