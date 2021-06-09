@@ -10,10 +10,7 @@ class Alice(nn.Module):
         self.hidden = hp.alice.hidden
         self.input_size = hp.data.cipher + hp.data.key
         self.output_size = hp.data.cipher
-        # self.mlp = nn.ModuleList(
-        #     [nn.Linear(hp.data.plain + hp.data.key, self.hidden)] +
-        #     [nn.Linear(self.hidden, self.hidden) for _ in range(self.depth-2)])
-        # self.last = nn.Linear(self.hidden, hp.data.cipher)
+
         self.fc = nn.Linear(self.input_size,self.input_size)
         self.conv_net = nn.Sequential(
         	nn.Conv1d(in_channels=1, out_channels=2,kernel_size=4,stride=1,padding=1),
@@ -28,7 +25,6 @@ class Alice(nn.Module):
 
     def forward(self, p, k):
         x = torch.cat((p, k), dim=-1)
-        #
         x = self.fc(x)
         x = x.view(-1,1,self.input_size)
         x = self.conv_net(x)
@@ -43,10 +39,7 @@ class Bob(nn.Module):
         self.hidden = hp.bob.hidden
         self.input_size = hp.data.cipher + hp.data.key
         self.output_size = hp.data.plain
-        # self.mlp = nn.ModuleList(
-        #     [nn.Linear(hp.data.cipher + hp.data.key, self.hidden)] +
-        #     [nn.Linear(self.hidden, self.hidden) for _ in range(self.depth-2)])
-        # self.last = nn.Linear(self.hidden, hp.data.plain)
+
         self.fc = nn.Linear(self.input_size,self.input_size)
         self.conv_net = nn.Sequential(
         	nn.Conv1d(in_channels=1, out_channels=2,kernel_size=4,stride=1,padding=1),
@@ -61,14 +54,6 @@ class Bob(nn.Module):
 
     def forward(self, c, k):
         x = torch.cat((c, k), dim=-1)
-
-        # for idx, layer in enumerate(self.mlp):
-        #     if idx == 0:
-        #         x = F.relu(layer(x))
-        #     else:
-        #         x = F.relu(x + layer(x))
-
-        # x = torch.tanh(self.last(x))
         x = self.fc(x)
         x = x.view(-1,1,self.input_size)
         x = self.conv_net(x)
@@ -83,10 +68,7 @@ class Eve(nn.Module):
         self.hidden = hp.eve.hidden
         self.input_size = hp.data.cipher
         self.output_size = hp.data.plain
-        # self.mlp = nn.ModuleList(
-        #     [nn.Linear(hp.data.cipher, self.hidden)] + 
-        #     [nn.Linear(self.hidden, self.hidden) for _ in range(self.depth-1)])
-        # self.last = nn.Linear(self.hidden, hp.data.plain)
+
         self.fc = nn.Linear(self.input_size, self.input_size*2)
         self.conv_net = nn.Sequential(
         	nn.Conv1d(in_channels=1, out_channels=2,kernel_size=4,stride=1,padding=1),
@@ -101,14 +83,6 @@ class Eve(nn.Module):
 
     def forward(self, c):
         x = c
-
-        # for idx, layer in enumerate(self.mlp):
-        #     if idx == 0:
-        #         x = F.relu(layer(x))
-        #     else:
-        #         x = F.relu(x + layer(x))
-
-        # x = torch.tanh(self.last(x))
         x = self.fc(x)
         x = x.view(-1,1,self.input_size*2)
         x = self.conv_net(x)

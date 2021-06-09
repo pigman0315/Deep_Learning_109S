@@ -21,4 +21,8 @@ def validate(hp, args, alice, bob, eve, valloader, writer, step):
     writer.log_accuracy(acc_b, acc_e, step)
     print('Accuracy(%%): Bob %.1f Eve %.1f' % (100.*acc_b, 100.*acc_e))
 
+    if(acc_b > hp.bob.end_acc and acc_e > hp.eve.end_acc_low and acc_e < hp.eve.end_acc_high):
+    	print('Training over')
+    	exit(0)
+
     alice.train(); bob.train(); eve.train()

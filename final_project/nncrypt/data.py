@@ -7,12 +7,6 @@ from torch.utils.data import Dataset, DataLoader
 
 def create_dataloader(hp, train):
     dataset = BitsDataset(hp, train)
-    # return DataLoader(dataset=dataset,
-    #         batch_size=hp.train.batch_size,
-    #         shuffle=True,
-    #         num_workers=hp.train.num_workers,
-    #         pin_memory=True,
-    #         drop_last=True)
     return DataLoader(dataset=dataset,
             batch_size=hp.train.batch_size,
             shuffle=True,
