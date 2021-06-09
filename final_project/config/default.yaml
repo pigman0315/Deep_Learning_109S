@@ -1,0 +1,27 @@
+data:
+  plain: 32
+  key: 32
+  cipher: 32
+---
+alice:
+  depth: 5
+  hidden: 64
+---
+bob:
+  depth: 5
+  hidden: 64
+---
+eve:
+  depth: 5
+  hidden: 64
+---
+train:
+  batch_size: 4096
+  num_workers: 8
+  steps: [250, 2] # steps per epoch for train/val
+  adam:
+    lr: 0.0008
+---
+log:
+  log_dir: 'logs'
+  validation: 1
