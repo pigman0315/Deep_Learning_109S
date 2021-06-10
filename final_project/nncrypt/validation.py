@@ -21,8 +21,12 @@ def validate(hp, args, alice, bob, eve, valloader, writer, step):
     writer.log_accuracy(acc_b, acc_e, step)
     print('Accuracy(%%): Bob %.1f Eve %.1f' % (100.*acc_b, 100.*acc_e))
 
-    if(acc_b > hp.bob.end_acc and acc_e > hp.eve.end_acc_low and acc_e < hp.eve.end_acc_high):
+    err_bit_b = (1.0-acc_b)*hp.data.N
+    err_bit_e = (1.0-acc_e)*hp.data.N
+    print(err_bit_b,err_bit_e)
+    if(err_bit_b < hp.bob.end_bit and abs(err_bit_e-hp.data.N/2) < hp.eve.end_bit):
     	print('Training over')
-    	exit(0)
-
-    alice.train(); bob.train(); eve.train()
+    	return False
+    else:
+    	alice.train(); bob.train(); eve.train()
+    	return True

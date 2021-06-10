@@ -26,12 +26,13 @@ def train(args, trainloader, valloader, writer, logger, hp, hp_str):
     step = 0
     criterion = nn.L1Loss()
     try:
-        alice.train(); bob.train(); eve.train()
+        alice.train(); bob.train(); eve.train() # train mode
         for epoch in range(hp.train.epochs):
             if epoch % hp.log.validation == 0:
                 with torch.no_grad():
-                    validate(hp, args, alice, bob, eve, valloader, writer, step)
-
+                    keep_train = validate(hp, args, alice, bob, eve, valloader, writer, step)
+            if(keep_train == False):
+            	return alice,bob,eve
             loader = tqdm.tqdm(trainloader)
             for plainE, keyE, plainAB, keyAB in loader:
                 plainE = plainE.cuda()
@@ -55,9 +56,10 @@ def train(args, trainloader, valloader, writer, logger, hp, hp_str):
                 out_b = bob(cipher, keyAB)
                 loss_e = criterion(plainAB, out_e)
                 loss_b = criterion(plainAB, out_b)
-                #loss_ab = loss_b + (1. - loss_e).pow(2)
+                
                 half_n = hp.data.N / 2
                 loss_ab = loss_b + ((half_n - loss_e)**2) / ((half_n)**2)
+                #loss_ab = loss_b + (1. - loss_e).pow(2)
                 loss_ab.backward()
                 optim_ab.step()
                 loss_b = loss_b.item()

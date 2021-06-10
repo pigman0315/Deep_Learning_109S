@@ -4,6 +4,7 @@ import logging
 import argparse
 
 from nncrypt.train import train
+from nncrypt.test import test
 from nncrypt.hparams import HParam
 from nncrypt.writer import MyWriter
 from nncrypt.data import create_dataloader
@@ -40,4 +41,5 @@ if __name__ == '__main__':
     trainloader = create_dataloader(hp, True)
     valloader = create_dataloader(hp, False)
 
-    train(args, trainloader, valloader, writer, logger, hp, hp_str)
+    alice,bob,eve = train(args, trainloader, valloader, writer, logger, hp, hp_str)
+    test(args,hp,alice,bob,eve)
