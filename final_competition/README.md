@@ -1,7 +1,7 @@
 # Deep Learning Final Competition
 ## Directory Structure
 ```
-|- 309555025
+|- final_competition
 	|- test
 		|- 000000.wav
 		|- ...
