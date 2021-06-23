@@ -34,3 +34,25 @@ $ ./run.sh
 $ python audio_to_text.py
 $ python text_to_label.py
 ```
+## Model Architecture
+### Audio to Text
+- Process
+```
+Audio => MelSpectrogram(n_mel=64) => 3 Layers of CNN => 3 Layers of RNN => CTC loss => CTC GreedyDecoder => Text
+``` 
+- Hyperparameters
+	- Batch size: 16
+	- Learning rate: 0.001
+	- Epochs: 50
+
+### Text to Label
+- Process
+```
+Text => Embedding(embed_size=512) => 1 Layers of RNN(Hidden size=256) => Cross Entropy Loss => Label
+``` 
+- Hyperparameters
+	- Batch size: 16
+	- Learning rate: 2.5
+	- Epochs: 10
+	- Embedding dimension: 512
+	- Hidden size: 256
