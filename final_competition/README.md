@@ -36,9 +36,20 @@ $ python text_to_label.py
 ```
 ## Model Architecture
 ### Audio to Text
-- Process
+- Whole Picture
 ```
-Audio => MelSpectrogram(n_mel=64) => 3 Layers of CNN => 3 Layers of RNN => CTC loss => CTC GreedyDecoder => Text
+Audio => MelSpectrogram(n_mel=64) => 3 Layers of CNN => 3 Layers of RNN => CTC Loss => CTC GreedyDecoder => Text
+- Audio process
+	- Torchaudio.transforms.MelSpectrogram
+- CNN
+	- Channel: 32
+	- Kernel: 3
+	- Padding: 1
+	- Stride: 2
+- RNN
+	- Input size: 512
+	- Hidden size: 512
+	- Bidirectional: True
 ``` 
 - Hyperparameters
 	- Batch size: 16
@@ -46,10 +57,13 @@ Audio => MelSpectrogram(n_mel=64) => 3 Layers of CNN => 3 Layers of RNN => CTC l
 	- Epochs: 50
 
 ### Text to Label
-- Process
+- Whole Picture
 ```
 Text => Embedding(embed_size=512) => 1 Layers of RNN(Hidden size=256) => Cross Entropy Loss => Label
 ``` 
+- RNN
+	- Input size: 512
+	- Hidden size: 256
 - Hyperparameters
 	- Batch size: 16
 	- Learning rate: 2.5
