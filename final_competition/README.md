@@ -18,7 +18,7 @@
 ## Enviroment and Installation Setups
 - Python 3.8
 - Pytorch 1.8,1
-`pip install -r requirements.txt`
+- `pip install -r requirements.txt`
 
 ## Dataset
 - Download audio dataset from [link](https://www.kaggle.com/c/nycu-dl-final-competition/data)
