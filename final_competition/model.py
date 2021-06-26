@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torchvision
 import torchaudio
 from torch.utils.data import DataLoader
 import torchaudio.transforms as transforms
@@ -13,10 +12,9 @@ class CNNLayerNorm(nn.Module):
         self.layer_norm = nn.LayerNorm(n_feats)
 
     def forward(self, x):
-        # x (batch, channel, feature, time)
-        x = x.transpose(2, 3).contiguous() # (batch, channel, time, feature)
+        x = x.transpose(2, 3).contiguous()
         x = self.layer_norm(x)
-        return x.transpose(2, 3).contiguous() # (batch, channel, feature, time) 
+        return x.transpose(2, 3).contiguous()
 
 
 class ResidualCNN(nn.Module):
@@ -31,7 +29,7 @@ class ResidualCNN(nn.Module):
         self.layer_norm2 = CNNLayerNorm(n_feats)
 
     def forward(self, x):
-        residual = x  # (batch, channel, feature, time)
+        residual = x
         x = self.layer_norm1(x)
         x = F.gelu(x)
         x = self.dropout1(x)
@@ -41,7 +39,7 @@ class ResidualCNN(nn.Module):
         x = self.dropout2(x)
         x = self.cnn2(x)
         x += residual
-        return x # (batch, channel, feature, time)
+        return x
 
 
 class BidirectionalGRU(nn.Module):
@@ -68,9 +66,8 @@ class SpeechRecognitionModel(nn.Module):
     def __init__(self, n_cnn_layers, n_rnn_layers, rnn_dim, n_class, n_feats, stride=2, dropout=0.1):
         super(SpeechRecognitionModel, self).__init__()
         n_feats = n_feats//2
-        self.cnn = nn.Conv2d(1, 32, 3, stride=stride, padding=3//2)  # cnn for extracting heirachal features
+        self.cnn = nn.Conv2d(1, 32, 3, stride=stride, padding=3//2)
 
-        # n residual cnn layers with filter size of 32
         self.rescnn_layers = nn.Sequential(*[
             ResidualCNN(32, 32, kernel=3, stride=1, dropout=dropout, n_feats=n_feats) 
             for _ in range(n_cnn_layers)
@@ -82,7 +79,7 @@ class SpeechRecognitionModel(nn.Module):
             for i in range(n_rnn_layers)
         ])
         self.classifier = nn.Sequential(
-            nn.Linear(rnn_dim*2, rnn_dim),  # birnn returns rnn_dim*2
+            nn.Linear(rnn_dim*2, rnn_dim),
             nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(rnn_dim, n_class)
@@ -92,8 +89,8 @@ class SpeechRecognitionModel(nn.Module):
         x = self.cnn(x)
         x = self.rescnn_layers(x)
         sizes = x.size()
-        x = x.view(sizes[0], sizes[1] * sizes[2], sizes[3])  # (batch, feature, time)
-        x = x.transpose(1, 2) # (batch, time, feature)
+        x = x.view(sizes[0], sizes[1] * sizes[2], sizes[3])
+        x = x.transpose(1, 2)
         x = self.fully_connected(x)
         x = self.birnn_layers(x)
         x = self.classifier(x)

@@ -12,81 +12,33 @@ import sklearn
 from sklearn.model_selection import train_test_split
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-#
-char_map_str = """
- ' 0
- <SPACE> 1
- a 2
- b 3
- c 4
- d 5
- e 6
- f 7
- g 8
- h 9
- i 10
- j 11
- k 12
- l 13
- m 14
- n 15
- o 16
- p 17
- q 18
- r 19
- s 20
- t 21
- u 22
- v 23
- w 24
- x 25
- y 26
- z 27
- """
-class TextTransform:
-    """Maps characters to integers and vice versa"""
-    def __init__(self):
-        self.char_map_str = char_map_str
-        self.char_map = {}
-        self.index_map = {}
-        for line in self.char_map_str.strip().split('\n'):
-            ch, index = line.split()
-            self.char_map[ch] = int(index)
-            self.index_map[int(index)] = ch
-        self.index_map[1] = ' '
-        self.char_map[''] = 0
-        self.char_map[' '] = 1
-        
-    def text_to_int(self, text):
-        """ Use a character map and convert text to an integer sequence """
-        int_sequence = []
-        for c in text:
-            if c in self.char_map.keys():
-                ch = self.char_map[c]
-            else:
-                ch = self.char_map['']
-            int_sequence.append(ch)
-        return int_sequence
+# create char_map & index_map
+char_map = {}
+index_map = {}
+char_map[''] = 0
+char_map[' '] = 1
+index_map[1] = ' '
+for i in range(26):
+    char_map[chr(i+97)] = i+2
+    index_map[i+2] = chr(i+97)
 
-    def int_to_text(self, labels):
-        """ Use a character map and convert integer labels to an text sequence """
-        string = []
-        for i in labels:
-            string.append(self.index_map[i])
-        return ''.join(string).replace('', ' ')
+def text_to_int(text):
+    output = []
+    for c in text:
+        if c in char_map.keys():
+            ch = char_map[c]
+        else:
+            ch = char_map['']
+        output.append(ch)
+    return output
 
-train_audio_transforms = nn.Sequential(
-        torchaudio.transforms.MelSpectrogram(sample_rate=16000, n_mels=64),
-        torchaudio.transforms.FrequencyMasking(freq_mask_param=15),
-        torchaudio.transforms.TimeMasking(time_mask_param=35)
-    )
+def int_to_text(labels):
+    output = ""
+    for i in labels:
+        output += index_map[i] + " "
+    return output
 
-valid_audio_transforms = torchaudio.transforms.MelSpectrogram(sample_rate=16000, n_mels=64)
-
-text_transform = TextTransform()
-
-
-
+audio_transforms = torchaudio.transforms.MelSpectrogram(sample_rate=16000, n_mels=64)
 
 def data_processing(data, data_type="train"):
     spectrograms = []
@@ -96,11 +48,11 @@ def data_processing(data, data_type="train"):
     if(data_type != "valid"):
         for (waveform,utterance) in data:
             if data_type == 'train':
-                spec = train_audio_transforms(waveform).squeeze(0).transpose(0, 1)
+                spec = audio_transforms(waveform).squeeze(0).transpose(0, 1)
             else:
-                spec = valid_audio_transforms(waveform).squeeze(0).transpose(0, 1)
+                spec = audio_transforms(waveform).squeeze(0).transpose(0, 1)
             spectrograms.append(spec)
-            label = torch.Tensor(text_transform.text_to_int(utterance.lower()))
+            label = torch.Tensor(text_to_int(utterance.lower()))
             labels.append(label)
             input_lengths.append(spec.shape[0]//2)
             label_lengths.append(len(label))
@@ -108,14 +60,14 @@ def data_processing(data, data_type="train"):
         spectrograms = nn.utils.rnn.pad_sequence(spectrograms, batch_first=True).unsqueeze(1).transpose(2, 3)
         labels = nn.utils.rnn.pad_sequence(labels, batch_first=True)
 
-        return spectrograms, labels, input_lengths, label_lengths
+        return spectrograms.to(device), labels.to(device), input_lengths, label_lengths
     else:
         for waveform in data:
-            spec = valid_audio_transforms(waveform).squeeze(0).transpose(0, 1)
+            spec = audio_transforms(waveform).squeeze(0).transpose(0, 1)
             spectrograms.append(spec)
             input_lengths.append(spec.shape[0]//2)
         spectrograms = nn.utils.rnn.pad_sequence(spectrograms, batch_first=True).unsqueeze(1).transpose(2, 3)
-        return spectrograms,input_lengths
+        return spectrograms.to(device),input_lengths
 
 
 
@@ -129,7 +81,7 @@ def Decoder(output, blank_label=28,collapse_repeated=True):
                 if collapse_repeated and j != 0 and index == args[j -1]:
                     continue
                 decode.append(index.item())
-        decodes.append(text_transform.int_to_text(decode))
+        decodes.append(int_to_text(decode))
     return decodes
 
 def store_decode_text(model,valid_dataset):

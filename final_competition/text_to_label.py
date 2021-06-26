@@ -4,7 +4,6 @@ import torch.nn as nn
 import numpy as np
 import nltk
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 from nltk.tokenize import RegexpTokenizer
 import random
 import time
@@ -19,6 +18,7 @@ from sklearn.model_selection import train_test_split
 #
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Currently using GPU:",torch.cuda.get_device_name(0))
+
 label_list = ["calendar","play","qa","email","iot","general","weather","lists","audio","alarm"]
 
 class TextClassificationModel(nn.Module):
@@ -119,7 +119,7 @@ class TitleCategorization:
       self.counter = Counter()
       for line in tokenized_texts:
           self.counter.update(line)
-      vocab = Vocab(self.counter,min_freq=1)
+      vocab = Vocab(self.counter)
 
       return vocab
 
@@ -263,7 +263,7 @@ BATCH_SIZE = 16 # batch size for training
 NUM_LAYERS = 1
 HIDDEN_SIZE = 256
 DROP_OUT = 0.0
-EMBED_DIM = 512
+EMBED_DIM = 300
 NUM_CLASS = 10
 
 #
