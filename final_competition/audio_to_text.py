@@ -74,14 +74,13 @@ def main(train_dataset,test_dataset,valid_dataset,pretrained_model=None,learning
     
     if(pretrained_model != None):
         model.load_state_dict(torch.load(pretrained_model))
-    
+
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
     criterion = nn.CTCLoss(blank=28).to(device)
     scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=learning_rate, 
                                             steps_per_epoch=int(len(train_loader)),
                                             epochs=epochs,
                                             anneal_strategy='linear')
-
     for epoch in range(1, epochs + 1):
         train(model, device, train_loader, criterion, optimizer, scheduler, epoch)
         test(model, device, test_loader, criterion, epoch)
@@ -92,7 +91,7 @@ def main(train_dataset,test_dataset,valid_dataset,pretrained_model=None,learning
 N_FEATURES = 64 # DO NOT CHANGE THIS
 BATCH_SIZE = 16
 LR = 0.001
-EPOCHS = 3 # set epoch = 30 might save you some time
+EPOCHS = 30
 
 
 if __name__ == '__main__':

@@ -18,6 +18,7 @@ index_map = {}
 char_map[''] = 0
 char_map[' '] = 1
 index_map[1] = ' '
+index_map[0] = ''
 for i in range(26):
     char_map[chr(i+97)] = i+2
     index_map[i+2] = chr(i+97)

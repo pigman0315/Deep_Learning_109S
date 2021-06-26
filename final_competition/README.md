@@ -62,7 +62,6 @@ $ python text_to_label.py
 - RNN
 	- Input size: 512
 	- Hidden size: 512
-	- Bidirectional: True
 - Hyperparameters
 	- Batch size: 16
 	- Learning rate: 0.001
